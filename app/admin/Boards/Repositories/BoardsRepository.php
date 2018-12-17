@@ -31,7 +31,7 @@ class BoardsRepository
 
     public function findBy( $field , $value )
     {
-        return $this->board->where( $field , $value );
+        return $this->board->where( $field , $value )->first();
     }
 
 }

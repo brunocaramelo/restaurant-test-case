@@ -28,9 +28,9 @@ class BoardService
         return $this->boardModel->find( $identify );
     }
 
-    public function findByCode( $value )
+    public function findByNumber( $value )
     {
-        return $this->findByCode( $value );
+        return $this->boardModel->findByNumber( $value );
     }
 
 }

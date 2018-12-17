@@ -33,5 +33,24 @@ class BoardTableSeeder extends Seeder
             'id' => '5',
             'number' => '5A',
         ]);
+
+        // \Admin\Bills\Entities\BillEntity::firstOrCreate([
+        //     'id' => '1',
+        //     'board_id' => '1',
+        //     'balance' => '0.00',
+        //     'partial_balance' => '0.00',
+        // ]);
+        
+        // \Admin\Bills\Entities\BillItemEntity::firstOrCreate([
+        //     'id' => '1',
+        //     'bill_id' => '1',
+        //     'product_id' => '1',
+        // ]);
+        // \Admin\Bills\Entities\BillItemEntity::firstOrCreate([
+        //     'id' => '2',
+        //     'bill_id' => '1',
+        //     'product_id' => '2',
+        // ]);
+
     }
 }

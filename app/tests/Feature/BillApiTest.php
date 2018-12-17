@@ -18,94 +18,164 @@ class BillApiTest extends TestCase
         Artisan::call('db:seed');
     }
 
-    // public function test_fail_update_item()
-    // {   
-    //     $this->put('/api/v1/employee/1',[     
-    //                                         "name" => null,
-    //                                         "last_name" => "Sobre nome",
-    //                                         "age" => 14,
-    //                                 ])
-    //             ->assertStatus(400)
-    //             ->assertJson([
-    //                             'message' => "Preencha o Nome" 
-    //                         ]);
-    // }
+    public function test_fail_show_bill()
+    {   
+        $this->get('/api/v1/bill/14A',[])
+                ->assertStatus(400)
+                ->assertJson([
+                                "error" => "Nao existem conta aberta para a mesa: 14A",
+                            ]);
+    }
 
-    // public function test_fail_create_item()
-    // {   
-    //     $this->put('/api/v1/employee/1',[     
-    //                                         "name" => 'mudando nome',
-    //                                         "last_name" => null,
-    //                                         "age" => 10,
-    //                                 ])
-    //             ->assertStatus(400)
-    //             ->assertJson([
-    //                             'message' => "Preencha o Sobre Nome" 
-    //                         ]);
-    // }
+    public function test_create_bill()
+    {   
+        $this->post('/api/v1/bill/',[     
+                                        "number" => "14A",
+                                    ])
+                ->assertStatus(200)
+                ->assertJson([
+                                "message" => "Conta criada com sucesso",
+                            ])
+                            ;
+    }
+
+    public function test_add_first_product()
+    {   
+        $this->test_create_bill();
+        $this->post('/api/v1/bill/14A/product',[     
+                                            "product_id" => 1
+                                    ])
+                ->assertStatus(200)
+                ->assertJson([
+                                'message' => "Produto adicionado com sucesso" 
+                            ]);
+    }
+
+    public function test_add_second_product()
+    {   
+        $this->test_create_bill();
+        $this->post('/api/v1/bill/14A/product',[     
+                                            "product_id" => 2
+                                    ])
+                ->assertStatus(200)
+                ->assertJson([
+                                'message' => "Produto adicionado com sucesso" 
+                            ]);
+    }
+
+    public function test_show_new_itens()
+    {   
+        $this->test_add_first_product();
+        $this->test_add_second_product();
+        
+        $this->get('/api/v1/bill/14A',[])
+            ->assertStatus(200)
+            ->assertJson( [ "id" => 1,
+                            "balance" => "23.1",
+                            "partial_balance" => "0",
+                            "products" => 
+                                            [
+                                                [
+                                                    "name" => "Cerveja Brahma",
+                                                    "price" => "10.55",
+                                                    "status" => "active",
+                                                ],
+                                                [
+                                                    "name" => "Porcao Amendoim",
+                                                    "price" => "12.55",
+                                                    "status" => "active",
+                                                ],
+                                            ],
+                            "board" => [
+                            "number" => "14A",
+                            "status" => "active",
+                            ]
+                        ] );    
+    }
+
+    public function test_pay_partial()
+    {   
+        $this->test_add_first_product();
+        $this->test_add_second_product();
+        
+        $this->put('/api/v1/bill/14A/pay',[
+                                        "quantity" => 5.50
+                                     ])
+            ->assertStatus(200)
+            ->assertJson( ["message" => "Conta paga com sucesso" ] );    
+    }
     
-    // public function test_update_item()
-    // {   
-    //     $this->put('/api/v1/employee/1',[     
-    //                                     'name' => 'Silvana',
-    //                                     'last_name' => 'Silva',
-    //                                     'age' => '25',
-    //                                     'genre' => 'F',
-    //                                     ])
-    //             ->assertStatus(200)
-    //             ->assertJson([
-    //                             'message' => 'Funcionario editado com sucesso' 
-    //                         ]);
-    // }
-    // public function test_create_item()
-    // {   
-    //     $this->post('/api/v1/employee/',[     
-    //                                 'name' => 'Segunda',
-    //                                 'last_name' => 'Marques',
-    //                                 'age' => '25',
-    //                                 'genre' => 'F',
-    //                                ])
-    //             ->assertStatus(200)
-    //             ->assertJson([
-    //                             'message' => 'Funcionario criado com sucesso' 
-    //                         ]);
-    // }
+    public function test_pay_complete()
+    {   
+        $this->test_add_first_product();
+        $this->test_add_second_product();
+        
+        $this->put('/api/v1/bill/14A/pay',[
+                                        "quantity" => 23.1
+                                     ])
+            ->assertStatus(200)
+            ->assertJson( ["message" => "Conta paga com sucesso" ] );    
+    }
 
-    // public function test_remove_item()
-    // {   
-    //     $this->delete('/api/v1/employee/1',[     
-    //                                             "id" => "1",
-    //                                     ])
-    //             ->assertStatus(200)
-    //             ->assertJson([
-    //                             'message' => 'Funcionario excluido com sucesso' 
-    //                         ]);
-    // }
+    public function see_partial_pay()
+    {   
+        $this->test_pay_partial();
+       
+        $this->get('/api/v1/bill/14A',[])
+            ->assertStatus(200)
+            ->assertJson( [ "id" => 1,
+                            "balance" => "23.1",
+                            "partial_balance" => "5.5",
+                            "products" => 
+                                            [
+                                                [
+                                                    "name" => "Cerveja Brahma",
+                                                    "price" => "10.55",
+                                                    "status" => "active",
+                                                ],
+                                                [
+                                                    "name" => "Porcao Amendoim",
+                                                    "price" => "12.55",
+                                                    "status" => "active",
+                                                ],
+                                            ],
+                            "board" => [
+                            "number" => "14A",
+                            "status" => "active",
+                            ]
+                        ] );    
+    }
 
-    // public function test_edit_item()
-    // {   
-    //     $this->get('/api/v1/employee/1',[     
-    //                                             "id" => "1",
-    //                                         ])
-    //             ->assertStatus(200)
-    //             ->assertJson([
-    //                             "name" => "Silvana",
-    //                             "last_name" => "Silva",
-    //                          ]);
-    // }
-    // public function test_list_two_items()
-    // {   
-    //     $this->test_create_item();
-
-    //     $this->get('/api/v1/employees/',[])
-    //             ->assertStatus(200)
-    //             ->assertSeeText('Silvana')
-    //             ->assertSeeText('Segunda')
-    //             ->assertSeeText('Silva')
-    //             ->assertSeeText('Marques');
-               
-    // }
-
+    public function see_complete_pay()
+    {   
+        $this->test_pay_complete();
+       
+        $this->get('/api/v1/bill/14A',[])
+            ->assertStatus(200)
+            ->assertJson( [ "id" => 1,
+                            "balance" => "23.1",
+                            "partial_balance" => "23.1",
+                            "products" => 
+                                            [
+                                                [
+                                                    "name" => "Cerveja Brahma",
+                                                    "price" => "10.55",
+                                                    "status" => "active",
+                                                ],
+                                                [
+                                                    "name" => "Porcao Amendoim",
+                                                    "price" => "12.55",
+                                                    "status" => "active",
+                                                ],
+                                            ],
+                            "board" => [
+                            "number" => "14A",
+                            "status" => "closed",
+                            ]
+                        ] );    
+    }
+    
+    
     public function tearDown()
     {
         Artisan::call('migrate:reset');

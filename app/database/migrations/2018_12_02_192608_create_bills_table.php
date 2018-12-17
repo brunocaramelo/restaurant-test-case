@@ -15,8 +15,8 @@ class CreateBillsTable extends Migration
     {
         Schema::create('bills', function (Blueprint $table) {
             $table->increments( 'id' );
-            $table->decimal( 'balance', 15 , 2 );
-            $table->decimal( 'partial_balance' , 15 , 2 );
+            $table->decimal( 'balance', 15 , 2 )->default('0.00');
+            $table->decimal( 'partial_balance' , 15 , 2 )->default('0.00');
             $table->integer( 'board_id')->foreign('board_id')
                                         ->references('id')
                                         ->on('boards');

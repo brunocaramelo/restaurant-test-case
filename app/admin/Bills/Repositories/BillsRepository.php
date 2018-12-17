@@ -10,7 +10,7 @@ class BillsRepository
 
     public function __construct( BillEntity $bill )
     {
-        $this->bill = $employee;
+        $this->bill = $bill;
     }
 
     public function getList()
@@ -31,9 +31,24 @@ class BillsRepository
         return $this->bill->find( $identify );
     }
 
+    public function findActive( $identify )
+    {
+        return $this->bill->where( 'id', $identify )->active()->first();
+    }
+
+  
     public function findBy( $field , $value )
     {
         return $this->bill->where( $field , $value );
+    }
+
+    public function findActiveByBoardCode( $number )
+    {
+        return  $this->bill->active()
+                        ->whereHas('board', function( $query ) use( $number ) {
+                            $query->where('number', '=', $number );
+                        })->first();
+                                        
     }
     
     
@@ -46,6 +61,20 @@ class BillsRepository
     {
         $billSave = $this->bill->find( $identify );
         return $billSave->fill( $data )->save();
+    }
+    
+    public function addProduct( $identify , $product )
+    {
+        $billSave = $this->findActive( $identify );
+        
+        $billSave->itens()->create(
+                                            [ 
+                                                'product_id' => $product->id,
+                                                'bill_id' => $billSave->id,
+                                            ]
+                                          );
+        $billSave->balance =  ( $billSave->balance + $product->price ); 
+        return $billSave->save();
     }
 
 }

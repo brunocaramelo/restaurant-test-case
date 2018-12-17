@@ -17,18 +17,14 @@ class BillsValidator{
     public function validateCreate( $fields )
     {
       return $this->make( $fields , [
-                                        'last_name' => 'required',
-                                        'name' => 'required',
-                                        'age' => 'required',
+                                        'board_id' => 'required',
                                     ]);
     }
 
     public function validateUpdate( $fields )
     {
        return $this->make( $fields , [
-                                        'last_name' => 'required',
-                                        'name' => 'required',
-                                        'age' => 'required',
+                                        'board_id' => 'required',
                                     ]);
     }
 
@@ -43,9 +39,7 @@ class BillsValidator{
     private function setMessages()
     {
         $this->messages = [
-                            'last_name.required'=>'Preencha o Sobre Nome',
-                            'age.required'=>'Preencha a Idade',
-                            'name.required'=>'Preencha o Nome',
+                            'board_id.required'=>'E necessario informar o numero da mesa',
                             ];
     }
 

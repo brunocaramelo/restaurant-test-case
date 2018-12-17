@@ -1,51 +1,46 @@
 <?php
 
-namespace Admin\Employee\Services;
+namespace Admin\Bills\Services;
 
-use Admin\Employee\Models\EmployeeModel;
+use Admin\Bills\Models\BillModel;
 
-class EmployeeService
+class BillsService
 {
-    private $employeeModel = null;
+    private $billModel = null;
     
     public function __construct()
     {
-        $this->employeeModel = new EmployeeModel();
+        $this->billModel = new BillModel();
     }
 
     public function getList()
     {
-        return $this->employeeModel->getList();
+        return $this->billModel->getList();
     }
 
-    public function remove( $identify )
+    public function createByBoardCode( $code )
     {
-        return $this->employeeModel->remove( $identify );
-    }
-
-    public function create( array $data )
-    {
-        return $this->employeeModel->create( $data );
-    }
-
-    public function update( $identify , array $data )
-    {
-        return $this->employeeModel->update( $identify , $data );
-    }
-
-    public function edit( $identify )
-    {
-        return $this->employeeModel->edit( $identify );
+        return $this->billModel->createByBoardCode( $code );
     }
 
     public function find( $identify )
     {
-        return $this->employeeModel->find( $identify );
+        return $this->billModel->find( $identify );
     }
 
-    public function findByCode( $value )
+    public function findActiveByBoardCode( $boardNumber )
     {
-        return $this->findByCode( $value );
+        return $this->billModel->findActiveByBoardCode( $boardNumber );
+    }
+    
+    public function addProductToBill( $boardNumber , \Admin\Products\Entities\ProductEntity $product )
+    {
+        return $this->billModel->addProductToBill( $boardNumber , $product );
+    }
+
+    public function pay( $boardNumber ,  $quantity )
+    {
+        return $this->billModel->pay( $boardNumber , $quantity );
     }
 
 }

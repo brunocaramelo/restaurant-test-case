@@ -18,7 +18,7 @@ para gerencimento de ambientes com o uso de:
     - web / nginx
 
 1- Baixar repositório 
-    - git clone https://github.com/brunocaramelo/employee-test-case.git
+    - git clone https://github.com/brunocaramelo/restaurant-test-case.git
 
 2 - VERIFICAR  SE AS PORTAS 4001 E 3306 ESTÃO OCUPADAS,
 
@@ -60,4 +60,16 @@ GET - api/v1/boards/ (Listar Mesas ativas)
 GET - api/v1/product/{id} (Detalhar Produto) 
 
 PUT - api/v1/board/{id} (Datalhar Mesa) 
+
+POST - api/v1/bill/ (Ira Criar uma conta a partir do numero da mesa)
+        - PARAMS -> [number] -> string
+
+POST - api/v1/bill/{NUMBER}/product (Ira Adicionar um produto a conta da mesa) 
+    - PARAMS -> [product_id] -> integer
+
+PUT - api/v1/bill/{NUMBER}/pay (Ira Pagar parcialmente quando o valor for menor que o tal da conta da mesa, quando for igual ou maior a conta sera fechada) 
+    - PARAMS -> [quantity] -> decimal 10.00
+
+
+GET - api/v1/bill/{id} (Detalhar O resultado da conta aberta) 
 

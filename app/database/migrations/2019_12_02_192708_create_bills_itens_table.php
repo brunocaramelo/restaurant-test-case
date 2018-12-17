@@ -13,7 +13,7 @@ class CreateBillsItensTable extends Migration
      */
     public function up()
     {
-        Schema::create('bills_itens', function (Blueprint $table) {
+        Schema::create('bill_itens', function (Blueprint $table) {
             $table->increments( 'id' );
             $table->integer( 'product_id')->foreign('product_id')
                                         ->references('id')

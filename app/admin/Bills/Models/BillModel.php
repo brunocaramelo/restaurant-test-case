@@ -8,6 +8,7 @@ use Admin\Bills\Validators\BillsValidator;
 use Admin\Bills\Exceptions\BillEditException;
 use Admin\Bills\Entities\BillEntity;
 use Admin\Bills\Repositories\BillsRepository;
+use Admin\Boards\Services\BoardService;
 
 class BillModel
 {
@@ -18,49 +19,64 @@ class BillModel
         $this->billRepo = new BillsRepository( new BillEntity() );
     }
 
-    public function getList()
+    public function createByBoardCode( $code )
     {
-        return $this->billRepo->getList();
+        return $this->billRepo->create( 
+                                        [ 
+                                            'board_id' => $this->getBoardIdByNumber( $code ) 
+                                        ] 
+                                    );
     }
 
-    public function create( array $data )
+    public function addProductToBill( $code , \Admin\Products\Entities\ProductEntity $product )
     {
-        $validate = new BillsValidator();
-        $validation = $validate->validateCreate( $data );
-        if( $validation->fails() )
-            throw new BillEditException( implode( "\n" , $validation->errors()->all() ) );
-        return $this->billRepo->create( $data );
-    }
-
-    public function update( $identify , array $data )
-    {
-        $validate = new BillsValidator();
-        $validation = $validate->validateUpdate( $data );
-        if( $validation->fails() )
-            throw new BillEditException( implode( "\n" , $validation->errors()->all() ) );
-        return $this->billRepo->update( $identify , $data );
-    }
-
-    public function edit( $identify )
-    {
-        $edit = $this->find( $identify );
-        unset( $edit['created_at'], $edit['updated_at'] , $edit['api_token'] );
-        return $edit;
+        return $this->billRepo->addProduct( $this->getBoardIdByNumber( $code ) , 
+                                            $product );
     }
 
     public function find( $identify )
     {
         return $this->billRepo->find( $identify );
     }
+    public function findActive( $identify )
+    {
+        return $this->billRepo->findActive( $identify );
+    }
 
     public function findByCode( $value )
     {
-        return $this->findBy( 'code' , $value );
+        return $this->findBy( 'number' , $value );
     }
 
     public function findBy( $field , $value )
     {
         return $this->billRepo->findBy( $field , $value )->first();
+    }
+
+    public function findActiveByBoardCode( $field )
+    {
+        return $this->billRepo->findActiveByBoardCode( $field );
+    }
+
+    private function getBoardIdByNumber( $code )
+    {
+        $boardService = new BoardService();
+        $boardSource = $boardService->findByNumber( $code );
+        if(! $boardSource  instanceof \Admin\Boards\Entities\BoardEntity )
+            throw new BillEditException( "Mesa $code inexistente" );
+        return $boardSource->id;
+    }
+
+    public function pay( $code , $quantity )
+    {
+        $actual = $this->findActive( $this->getBoardIdByNumber( $code ) );
+        $isFullPayment = ( $quantity >= $actual->balance );
+        
+        $updateParams['status'] = ( $isFullPayment === true ? 'closed' : $actual->status );
+        $updateParams['partial_balance'] = ( $isFullPayment === true ? 0.00 : $quantity );
+        
+        $this->billRepo->update( $actual->id , $updateParams );
+ 
     }
 
 }

@@ -33,6 +33,6 @@ class BoardsModel
 
     public function findByNumber( $value )
     {
-        return $this->findBy( 'number' , $value );
+        return $this->board->findBy( 'number' , $value );
     }
 }

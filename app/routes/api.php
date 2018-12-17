@@ -54,25 +54,26 @@ Route::group(['prefix' => 'v1'], function ()
 
     });
 
-    Route::group(['prefix' => 'employee'], function () 
+    Route::group(['prefix' => 'bill'], function () 
     {
         Route::post('/',
-                            [ 'as' => 'create-employee', 
-                            'uses' => '\Admin\Employee\Controllers\EmployeeController@create' 
-                            ]);
-        Route::get('/{id}',
-                            [ 'as' => 'view-employee', 
-                            'uses' => '\Admin\Employee\Controllers\EmployeeController@findById' 
+                            [ 'as' => 'create-bill', 
+                            'uses' => '\Admin\Bills\Controllers\BillsController@create' 
                             ]);
 
-        Route::put('/{id}',
-                            [ 'as' => 'update-employee', 
-                            'uses' => '\Admin\Employee\Controllers\EmployeeController@update' 
+        Route::get('/{number}',
+                            [ 'as' => 'see-bill', 
+                            'uses' => '\Admin\Bills\Controllers\BillsController@findByNumberBoard' 
                             ]);
 
-        Route::delete('/{id}',
-                            [ 'as' => 'delete-employee', 
-                            'uses' => '\Admin\Employee\Controllers\EmployeeController@remove' 
+        Route::put('/{number}/pay',
+                            [ 'as' => 'pay-bill', 
+                            'uses' => '\Admin\Bills\Controllers\BillsController@payBill' 
+                            ]);
+        
+        Route::post('/{number}/product',
+                            [ 'as' => 'add-product', 
+                            'uses' => '\Admin\Bills\Controllers\BillsController@addProduct' 
                             ]);
 
     });
